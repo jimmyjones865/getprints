@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>getprints</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>getprints</h1>
+    <div class="server-status">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="status-text" id="statusText">Checking…</span>
+      <button class="btn-icon" id="refreshBtn" title="Refresh printers">↺</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="drop-panel">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-hint" id="dropHint">
+          <div class="drop-icon">↓</div>
+          <p>Drop a PDF or image</p>
+          <p class="drop-sub">or click to browse</p>
+        </div>
+        <iframe id="pdfPreview" class="preview hidden" title="PDF preview"></iframe>
+        <img id="imgPreview" class="preview hidden" alt="Preview">
+      </div>
+      <div class="file-bar hidden" id="fileBar">
+        <span id="fileName"></span>
+        <button class="btn-clear" id="clearFile" title="Remove file">✕</button>
+      </div>
+      <input type="file" id="fileInput" accept=".pdf,image/*" hidden>
+    </div>
+
+    <div class="controls-panel">
+      <div class="field">
+        <label for="printerSelect">Printer</label>
+        <select id="printerSelect">
+          <option value="">— select printer —</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="copies">Copies</label>
+        <input type="number" id="copies" value="1" min="1" max="99">
+      </div>
+
+      <div class="field">
+        <label for="pages">Pages</label>
+        <input type="text" id="pages" placeholder="all">
+        <span class="hint">e.g. 1-3,5</span>
+      </div>
+
+      <div class="field">
+        <label>Orientation</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="orientation" value="portrait" checked> Portrait
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="orientation" value="landscape"> Landscape
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Scale</label>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="scale" value="none" checked> 100%
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="scale" value="fit"> Fit to page
+          </label>
+        </div>
+      </div>
+
+      <div class="controls-footer">
+        <button class="btn-print" id="printBtn" disabled>Print</button>
+        <div class="print-status hidden" id="printStatus"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
