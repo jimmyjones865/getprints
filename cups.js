@@ -14,7 +14,7 @@ async function listPrinters() {
       .map(line => line.split(/\s+/)[0]);
     return { ok: true, printers };
   } catch (err) {
-    return { ok: false, printers: [], error: 'CUPS server unreachable' };
+    return { ok: false, printers: [], error: 'CUPS-Server nicht erreichbar' };
   }
 }
 

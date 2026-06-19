@@ -50,11 +50,11 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
   const { printer, copies = '1', pages = '', orientation = 'portrait', scale = 'none', text, codeType } = req.body;
 
   const filePath = req.file && req.file.path;
-  if (!filePath && !(text && text.trim())) return res.status(400).json({ error: 'no file or text' });
+  if (!filePath && !(text && text.trim())) return res.status(400).json({ error: 'Keine Datei oder Text' });
 
   if (!printer) {
     cleanup(filePath);
-    return res.status(400).json({ error: 'printer required' });
+    return res.status(400).json({ error: 'Drucker erforderlich' });
   }
   try {
     let stdinData, printOrientation = orientation, printScale = scale;
@@ -85,7 +85,7 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
 
 app.use((err, req, res, next) => {
   if (req.file) cleanup(req.file.path);
-  if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'File too large (max 100MB)' });
+  if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'Datei zu groß (max. 100 MB)' });
   res.status(500).json({ error: err.message });
 });
 

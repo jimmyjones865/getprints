@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,8 +11,8 @@
     <h1>getprints</h1>
     <div class="server-status">
       <span class="status-dot" id="statusDot"></span>
-      <span class="status-text" id="statusText">Checking…</span>
-      <button class="btn-icon" id="refreshBtn" title="Refresh printers">↺</button>
+      <span class="status-text" id="statusText">Wird geprüft…</span>
+      <button class="btn-icon" id="refreshBtn" title="Drucker aktualisieren">↺</button>
     </div>
   </header>
 
@@ -21,30 +21,30 @@
       <div class="drop-zone" id="dropZone">
         <div class="drop-hint" id="dropHint">
           <div class="drop-icon">↓</div>
-          <p>Drop a PDF or image</p>
-          <p class="drop-sub">or click to browse</p>
+          <p>PDF oder Bild ablegen</p>
+          <p class="drop-sub">oder klicken zum Auswählen</p>
         </div>
-        <iframe id="pdfPreview" class="preview hidden" title="PDF preview"></iframe>
-        <img id="imgPreview" class="preview hidden" alt="Preview">
+        <iframe id="pdfPreview" class="preview hidden" title="PDF-Vorschau"></iframe>
+        <img id="imgPreview" class="preview hidden" alt="Vorschau">
       </div>
       <div class="file-bar hidden" id="fileBar">
         <span id="fileName"></span>
-        <button class="btn-clear" id="clearFile" title="Remove file">✕</button>
+        <button class="btn-clear" id="clearFile" title="Datei entfernen">✕</button>
       </div>
       <input type="file" id="fileInput" accept=".pdf,image/*" hidden>
 
       <div class="text-panel">
-        <label for="textInput">Or type text to print</label>
-        <textarea id="textInput" rows="3" placeholder="Quick text, label, note…"></textarea>
+        <label for="textInput">Oder Text zum Drucken eingeben</label>
+        <textarea id="textInput" rows="3" placeholder="Kurzer Text, Etikett, Notiz…"></textarea>
         <div class="radio-group">
           <label class="radio-label">
-            <input type="radio" name="textMode" value="plain" checked> Plain text
+            <input type="radio" name="textMode" value="plain" checked> Reiner Text
           </label>
           <label class="radio-label">
             <input type="radio" name="textMode" value="code128"> Code128
           </label>
           <label class="radio-label">
-            <input type="radio" name="textMode" value="qrcode"> QR code
+            <input type="radio" name="textMode" value="qrcode"> QR-Code
           </label>
         </div>
       </div>
@@ -52,51 +52,51 @@
 
     <div class="controls-panel">
       <div class="field">
-        <label for="printerSelect">Printer</label>
+        <label for="printerSelect">Drucker</label>
         <select id="printerSelect">
-          <option value="">— select printer —</option>
+          <option value="">— Drucker wählen —</option>
         </select>
-        <span class="hint" id="printerMedia"></span>
+        <span id="printerMedia"></span>
       </div>
 
       <div class="field">
-        <label for="copies">Copies</label>
+        <label for="copies">Kopien</label>
         <input type="number" id="copies" value="1" min="1" max="99">
       </div>
 
       <div class="field">
-        <label for="pages">Pages</label>
-        <input type="text" id="pages" placeholder="all">
-        <span class="hint">e.g. 1-3,5</span>
+        <label for="pages">Seiten</label>
+        <input type="text" id="pages" placeholder="alle">
+        <span class="hint">z. B. 1-3,5</span>
       </div>
 
       <div class="field">
-        <label>Orientation</label>
+        <label>Ausrichtung</label>
         <div class="radio-group">
           <label class="radio-label">
-            <input type="radio" name="orientation" value="portrait" checked> Portrait
+            <input type="radio" name="orientation" value="portrait" checked> Hochformat
           </label>
           <label class="radio-label">
-            <input type="radio" name="orientation" value="landscape"> Landscape
+            <input type="radio" name="orientation" value="landscape"> Querformat
           </label>
         </div>
       </div>
 
       <div class="field">
-        <label>Scale</label>
+        <label>Skalierung</label>
         <div class="radio-group">
           <label class="radio-label">
             <input type="radio" name="scale" value="none" checked> 100%
           </label>
           <label class="radio-label">
-            <input type="radio" name="scale" value="fit"> Fit to page
+            <input type="radio" name="scale" value="fit"> An Seite anpassen
           </label>
         </div>
       </div>
 
       <div class="controls-footer">
-        <button class="btn-cancel" id="cancelBtn" disabled>Cancel</button>
-        <button class="btn-print" id="printBtn" disabled>Print</button>
+        <button class="btn-cancel" id="cancelBtn" disabled>Abbrechen</button>
+        <button class="btn-print" id="printBtn" disabled>Drucken</button>
         <div class="print-status hidden" id="printStatus"></div>
       </div>
     </div>

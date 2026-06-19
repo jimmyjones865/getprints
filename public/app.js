@@ -63,7 +63,7 @@ function setupDropZone() {
 
 async function handleFile(file) {
   if (!ALLOWED_TYPES.includes(file.type) && !file.type.startsWith('image/')) {
-    showStatus('Only PDF and image files are supported', 'error');
+    showStatus('Nur PDF- und Bilddateien werden unterstützt', 'error');
     return;
   }
 
@@ -128,9 +128,9 @@ async function loadPrinters() {
       serverOk = true;
       setServerStatus('ok');
       if (data.printers.length === 0) {
-        select.innerHTML = '<option value="">No printers found</option>';
+        select.innerHTML = '<option value="">Keine Drucker gefunden</option>';
       } else {
-        select.innerHTML = '<option value="">— select printer —</option>';
+        select.innerHTML = '<option value="">— Drucker wählen —</option>';
         data.printers.forEach(p => {
           const opt = document.createElement('option');
           opt.value = p;
@@ -142,12 +142,12 @@ async function loadPrinters() {
     } else {
       serverOk = false;
       setServerStatus('error');
-      select.innerHTML = '<option value="">— unavailable —</option>';
+      select.innerHTML = '<option value="">— nicht verfügbar —</option>';
     }
   } catch (e) {
     serverOk = false;
     setServerStatus('error');
-    $('printerSelect').innerHTML = '<option value="">— unavailable —</option>';
+    $('printerSelect').innerHTML = '<option value="">— nicht verfügbar —</option>';
   }
   updatePrintButton();
   loadPrinterMedia();
@@ -178,7 +178,11 @@ async function loadPrinterMedia() {
 
 function setServerStatus(state) {
   $('statusDot').className = 'status-dot ' + state;
-  $('statusText').textContent = { ok: 'Connected', error: 'Unreachable', checking: 'Checking…' }[state];
+  $('statusText').textContent = {
+    ok: 'Mit Druckserver verbunden',
+    error: 'Nicht mit Druckserver verbunden',
+    checking: 'Wird geprüft…'
+  }[state];
 }
 
 // ── Print ──────────────────────────────────────────────────
@@ -189,7 +193,7 @@ async function handlePrint() {
 
   const btn = $('printBtn');
   btn.disabled = true;
-  btn.textContent = 'Sending…';
+  btn.textContent = 'Wird gesendet…';
   hideStatus();
 
   const fd = new FormData();
@@ -212,14 +216,14 @@ async function handlePrint() {
     if (data.ok) {
       const jobId = data.jobId;
       clearFile();
-      showStatus(`Sent — job ${jobId}`, 'success');
+      showStatus(`Gesendet — Auftrag ${jobId}`, 'success');
     } else {
-      showStatus(data.error || 'Print failed', 'error');
+      showStatus(data.error || 'Drucken fehlgeschlagen', 'error');
     }
   } catch (e) {
-    showStatus('Network error', 'error');
+    showStatus('Netzwerkfehler', 'error');
   } finally {
-    btn.textContent = 'Print';
+    btn.textContent = 'Drucken';
     updatePrintButton();
   }
 }
