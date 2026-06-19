@@ -20,7 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
   $('fileInput').addEventListener('change', e => {
     if (e.target.files[0]) handleFile(e.target.files[0]);
   });
-  $('printerSelect').addEventListener('change', updatePrintButton);
+  $('printerSelect').addEventListener('change', () => {
+    updatePrintButton();
+    loadPrinterMedia();
+  });
   $('textInput').addEventListener('input', () => {
     if ($('textInput').value.trim() && currentFile) clearFile({ keepText: true });
     updatePrintButton();
@@ -147,6 +150,30 @@ async function loadPrinters() {
     $('printerSelect').innerHTML = '<option value="">— unavailable —</option>';
   }
   updatePrintButton();
+  loadPrinterMedia();
+}
+
+async function loadPrinterMedia() {
+  const printer = $('printerSelect').value;
+  const el = $('printerMedia');
+  if (!printer) { el.textContent = ''; return; }
+
+  try {
+    const res = await fetch(`/api/printer-media?printer=${encodeURIComponent(printer)}`);
+    const data = await res.json();
+    if (!data.ok) { el.textContent = ''; return; }
+
+    el.textContent = data.widthMm
+      ? `${data.widthMm.toFixed(1)} × ${data.heightMm.toFixed(1)}mm`
+      : data.name;
+
+    if (data.orientation) {
+      const radio = document.querySelector(`input[name="orientation"][value="${data.orientation}"]`);
+      if (radio) radio.checked = true;
+    }
+  } catch (e) {
+    el.textContent = '';
+  }
 }
 
 function setServerStatus(state) {

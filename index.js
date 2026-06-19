@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { listPrinters, submitPrint } = require('./cups');
+const { listPrinters, submitPrint, getPrinterMedia } = require('./cups');
 const { detectOrientation } = require('./analyze');
 const { generateLabelPdf } = require('./labels');
 
@@ -32,6 +32,11 @@ app.get('/api/printers', async (req, res) => {
   res.json(await listPrinters());
 });
 
+app.get('/api/printer-media', async (req, res) => {
+  if (!req.query.printer) return res.status(400).json({ ok: false });
+  res.json(await getPrinterMedia(req.query.printer));
+});
+
 app.post('/api/analyze', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'no file' });
   try {
@@ -54,7 +59,10 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
   try {
     let stdinData, printOrientation = orientation, printScale = scale;
     if (!filePath && codeType) {
-      stdinData = await generateLabelPdf(text.trim(), codeType);
+      const media = await getPrinterMedia(printer);
+      const widthMm = media.widthMm || 55;
+      const heightMm = media.heightMm || 30;
+      stdinData = await generateLabelPdf(text.trim(), codeType, widthMm, heightMm);
       printOrientation = 'portrait';
       printScale = 'none';
     } else if (!filePath) {

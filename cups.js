@@ -18,6 +18,37 @@ async function listPrinters() {
   }
 }
 
+const PT_TO_MM = 25.4 / 72;
+
+async function getPrinterMedia(printer) {
+  try {
+    const { stdout } = await execFileAsync('lpoptions', ['-p', printer, '-l'], { timeout: 5000 });
+    const line = stdout.split('\n').find(l => l.startsWith('PageSize'));
+    if (!line) return { ok: false };
+
+    const match = line.match(/\*(\S+)/);
+    if (!match) return { ok: false };
+    const value = match[1];
+
+    const custom = value.match(/^w([\d.]+)h([\d.]+)$/i);
+    if (custom) {
+      const widthMm = parseFloat(custom[1]) * PT_TO_MM;
+      const heightMm = parseFloat(custom[2]) * PT_TO_MM;
+      return {
+        ok: true,
+        name: value,
+        widthMm,
+        heightMm,
+        orientation: widthMm > heightMm ? 'landscape' : 'portrait'
+      };
+    }
+
+    return { ok: true, name: value, widthMm: null, heightMm: null, orientation: null };
+  } catch (err) {
+    return { ok: false };
+  }
+}
+
 async function submitPrint({ filePath, stdinData, printer, copies, pages, orientation, scale }) {
   const args = ['-d', printer, '-h', cupsAddr, '-n', String(copies)];
   if (pages) args.push('-P', pages);
@@ -38,4 +69,4 @@ async function submitPrint({ filePath, stdinData, printer, copies, pages, orient
   }
 }
 
-module.exports = { listPrinters, submitPrint };
+module.exports = { listPrinters, submitPrint, getPrinterMedia };
