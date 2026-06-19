@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { listPrinters, submitPrint } = require('./cups');
 const { detectOrientation } = require('./analyze');
+const { generateLabelPdf } = require('./labels');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,23 +42,36 @@ app.post('/api/analyze', upload.single('file'), async (req, res) => {
 });
 
 app.post('/api/print', upload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'no file' });
-  const { printer, copies = '1', pages = '', orientation = 'portrait', scale = 'none' } = req.body;
+  const { printer, copies = '1', pages = '', orientation = 'portrait', scale = 'none', text, codeType } = req.body;
+
+  const filePath = req.file && req.file.path;
+  if (!filePath && !(text && text.trim())) return res.status(400).json({ error: 'no file or text' });
+
   if (!printer) {
-    cleanup(req.file.path);
+    cleanup(filePath);
     return res.status(400).json({ error: 'printer required' });
   }
   try {
+    let stdinData, printOrientation = orientation, printScale = scale;
+    if (!filePath && codeType) {
+      stdinData = await generateLabelPdf(text.trim(), codeType);
+      printOrientation = 'portrait';
+      printScale = 'none';
+    } else if (!filePath) {
+      stdinData = text;
+    }
+
     res.json(await submitPrint({
-      filePath: req.file.path,
+      filePath,
+      stdinData,
       printer,
       copies: Math.max(1, parseInt(copies) || 1),
       pages: pages.trim(),
-      orientation,
-      scale
+      orientation: printOrientation,
+      scale: printScale
     }));
   } finally {
-    cleanup(req.file.path);
+    cleanup(filePath);
   }
 });
 

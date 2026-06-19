@@ -16,10 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
   $('refreshBtn').addEventListener('click', loadPrinters);
   $('printBtn').addEventListener('click', handlePrint);
   $('clearFile').addEventListener('click', clearFile);
+  $('cancelBtn').addEventListener('click', clearFile);
   $('fileInput').addEventListener('change', e => {
     if (e.target.files[0]) handleFile(e.target.files[0]);
   });
   $('printerSelect').addEventListener('change', updatePrintButton);
+  $('textInput').addEventListener('input', () => {
+    if ($('textInput').value.trim() && currentFile) clearFile({ keepText: true });
+    updatePrintButton();
+  });
   loadPrinters();
 });
 
@@ -60,6 +65,7 @@ async function handleFile(file) {
   }
 
   clearFile();
+  $('textInput').value = '';
   currentFile = file;
   currentBlobUrl = URL.createObjectURL(file);
 
@@ -89,7 +95,7 @@ async function handleFile(file) {
   } catch (e) { /* non-fatal */ }
 }
 
-function clearFile() {
+function clearFile({ keepText = false } = {}) {
   if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
   currentFile = null;
 
@@ -100,6 +106,7 @@ function clearFile() {
   $('dropHint').classList.remove('hidden');
   $('fileBar').classList.add('hidden');
   $('fileInput').value = '';
+  if (!keepText) $('textInput').value = '';
   hideStatus();
   updatePrintButton();
 }
@@ -150,7 +157,8 @@ function setServerStatus(state) {
 // ── Print ──────────────────────────────────────────────────
 
 async function handlePrint() {
-  if (!currentFile || !$('printerSelect').value) return;
+  const text = $('textInput').value.trim();
+  if (!(currentFile || text) || !$('printerSelect').value) return;
 
   const btn = $('printBtn');
   btn.disabled = true;
@@ -158,7 +166,13 @@ async function handlePrint() {
   hideStatus();
 
   const fd = new FormData();
-  fd.append('file', currentFile);
+  if (currentFile) {
+    fd.append('file', currentFile);
+  } else {
+    fd.append('text', text);
+    const codeType = document.querySelector('input[name="textMode"]:checked').value;
+    if (codeType !== 'plain') fd.append('codeType', codeType);
+  }
   fd.append('printer', $('printerSelect').value);
   fd.append('copies', $('copies').value);
   fd.append('pages', $('pages').value.trim());
@@ -185,8 +199,13 @@ async function handlePrint() {
 
 // ── Helpers ────────────────────────────────────────────────
 
+function hasContent() {
+  return Boolean(currentFile || $('textInput').value.trim());
+}
+
 function updatePrintButton() {
-  $('printBtn').disabled = !(currentFile && $('printerSelect').value && serverOk);
+  $('printBtn').disabled = !(hasContent() && $('printerSelect').value && serverOk);
+  $('cancelBtn').disabled = !hasContent();
 }
 
 function showStatus(msg, type) {

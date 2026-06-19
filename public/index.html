@@ -32,6 +32,22 @@
         <button class="btn-clear" id="clearFile" title="Remove file">✕</button>
       </div>
       <input type="file" id="fileInput" accept=".pdf,image/*" hidden>
+
+      <div class="text-panel">
+        <label for="textInput">Or type text to print</label>
+        <textarea id="textInput" rows="3" placeholder="Quick text, label, note…"></textarea>
+        <div class="radio-group">
+          <label class="radio-label">
+            <input type="radio" name="textMode" value="plain" checked> Plain text
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="textMode" value="code128"> Code128
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="textMode" value="qrcode"> QR code
+          </label>
+        </div>
+      </div>
     </div>
 
     <div class="controls-panel">
@@ -78,6 +94,7 @@
       </div>
 
       <div class="controls-footer">
+        <button class="btn-cancel" id="cancelBtn" disabled>Cancel</button>
         <button class="btn-print" id="printBtn" disabled>Print</button>
         <div class="print-status hidden" id="printStatus"></div>
       </div>
