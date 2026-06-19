@@ -204,7 +204,8 @@ iframe.preview { background: #fff; }
 }
 
 .text-panel textarea {
-  flex: 1;
+  flex-shrink: 0;
+  overflow-y: auto;
   background: var(--nord1);
   border: 1px solid var(--nord3);
   color: var(--nord5);
