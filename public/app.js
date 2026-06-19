@@ -5,6 +5,7 @@ const $ = id => document.getElementById(id);
 let currentFile = null;
 let currentBlobUrl = null;
 let serverOk = false;
+let codeMode = null; // null | 'code128' | 'qrcode'
 
 const ALLOWED_TYPES = [
   'application/pdf',
@@ -28,8 +29,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($('textInput').value.trim() && currentFile) clearFile({ keepText: true });
     updatePrintButton();
   });
+  $('toggleCode128').addEventListener('click', () => setCodeMode('code128'));
+  $('toggleQrcode').addEventListener('click', () => setCodeMode('qrcode'));
   loadPrinters();
 });
+
+// ── Code mode toggle ───────────────────────────────────────
+
+function setCodeMode(mode) {
+  codeMode = codeMode === mode ? null : mode;
+  $('toggleCode128').classList.toggle('active', codeMode === 'code128');
+  $('toggleQrcode').classList.toggle('active', codeMode === 'qrcode');
+}
 
 // ── Drop zone ──────────────────────────────────────────────
 
@@ -109,7 +120,12 @@ function clearFile({ keepText = false } = {}) {
   $('dropHint').classList.remove('hidden');
   $('fileBar').classList.add('hidden');
   $('fileInput').value = '';
-  if (!keepText) $('textInput').value = '';
+  if (!keepText) {
+    $('textInput').value = '';
+    codeMode = null;
+    $('toggleCode128').classList.remove('active');
+    $('toggleQrcode').classList.remove('active');
+  }
   hideStatus();
   updatePrintButton();
 }
@@ -201,8 +217,7 @@ async function handlePrint() {
     fd.append('file', currentFile);
   } else {
     fd.append('text', text);
-    const codeType = document.querySelector('input[name="textMode"]:checked').value;
-    if (codeType !== 'plain') fd.append('codeType', codeType);
+    if (codeMode) fd.append('codeType', codeMode);
   }
   fd.append('printer', $('printerSelect').value);
   fd.append('copies', $('copies').value);

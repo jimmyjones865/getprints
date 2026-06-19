@@ -32,21 +32,14 @@
         <button class="btn-clear" id="clearFile" title="Datei entfernen">✕</button>
       </div>
       <input type="file" id="fileInput" accept=".pdf,image/*" hidden>
+    </div>
 
-      <div class="text-panel">
-        <label for="textInput">Oder Text zum Drucken eingeben</label>
-        <textarea id="textInput" rows="3" placeholder="Kurzer Text, Etikett, Notiz…"></textarea>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input type="radio" name="textMode" value="plain" checked> Reiner Text
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="textMode" value="code128"> Code128
-          </label>
-          <label class="radio-label">
-            <input type="radio" name="textMode" value="qrcode"> QR-Code
-          </label>
-        </div>
+    <div class="text-panel">
+      <label for="textInput">Oder Text zum Drucken eingeben</label>
+      <textarea id="textInput" placeholder="Kurzer Text, Etikett, Notiz…"></textarea>
+      <div class="toggle-group">
+        <button type="button" class="btn-toggle" id="toggleCode128" data-mode="code128">Code128</button>
+        <button type="button" class="btn-toggle" id="toggleQrcode" data-mode="qrcode">QR-Code</button>
       </div>
     </div>
 
