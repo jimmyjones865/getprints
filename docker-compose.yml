@@ -3,4 +3,6 @@ services:
     build: .
     network_mode: host
     env_file: .env
+    volumes:
+      - ./printer-whitelist.txt:/app/printer-whitelist.txt
     restart: unless-stopped
