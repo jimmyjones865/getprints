@@ -1,0 +1,13 @@
+# Copy to printer-whitelist.txt (or point PRINTER_WHITELIST_FILE at a copy
+# elsewhere) and uncomment/edit lines as needed. One pattern per line, '*'
+# wildcards, '#' comments. Matching is case-insensitive.
+# Missing file or empty file = no restriction, all printers allowed.
+
+# Exact name:
+# Kitchen
+
+# Wildcard prefix:
+# Label_*
+
+# Wildcard anywhere:
+# *_Office

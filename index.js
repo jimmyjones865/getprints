@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { listPrinters, submitPrint, getPrinterMedia } = require('./cups');
+const { listPrinters, submitPrint, getPrinterMedia, isWhitelisted } = require('./cups');
 const { detectOrientation } = require('./analyze');
 const { generateLabelPdf } = require('./labels');
 
@@ -29,7 +29,8 @@ function cleanup(filePath) {
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/printers', async (req, res) => {
-  res.json(await listPrinters());
+  const { ok, printers, error } = await listPrinters();
+  res.json({ ok, error, printers: printers.map(name => ({ name, allowed: isWhitelisted(name) })) });
 });
 
 app.get('/api/printer-media', async (req, res) => {
@@ -55,6 +56,15 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
   if (!printer) {
     cleanup(filePath);
     return res.status(400).json({ error: 'Drucker erforderlich' });
+  }
+  const { printers: knownPrinters } = await listPrinters();
+  if (!knownPrinters.includes(printer)) {
+    cleanup(filePath);
+    return res.status(400).json({ error: 'Ungültiger Drucker' });
+  }
+  if (!isWhitelisted(printer)) {
+    cleanup(filePath);
+    return res.status(400).json({ error: 'Drucker nicht erlaubt' });
   }
   try {
     let stdinData, printOrientation = orientation, printScale = scale;

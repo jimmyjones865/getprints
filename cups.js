@@ -1,10 +1,31 @@
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+const fs = require('fs');
+const path = require('path');
 const execFileAsync = promisify(execFile);
 
 const CUPS_HOST = process.env.CUPS_HOST || '100.71.170.2';
 const CUPS_PORT = process.env.CUPS_PORT || '631';
 const cupsAddr = `${CUPS_HOST}:${CUPS_PORT}`;
+
+const WHITELIST_FILE = process.env.PRINTER_WHITELIST_FILE || path.join(__dirname, 'printer-whitelist.txt');
+
+function loadWhitelistPatterns() {
+  try {
+    return fs.readFileSync(WHITELIST_FILE, 'utf8').split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.startsWith('#'));
+  } catch (err) {
+    return [];
+  }
+}
+
+function isWhitelisted(printer) {
+  const patterns = loadWhitelistPatterns();
+  if (patterns.length === 0) return true;
+  const escapeRe = s => s.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+  return patterns.some(p => new RegExp(`^${p.split('*').map(escapeRe).join('.*')}$`, 'i').test(printer));
+}
 
 async function listPrinters() {
   try {
@@ -69,4 +90,4 @@ async function submitPrint({ filePath, stdinData, printer, copies, pages, orient
   }
 }
 
-module.exports = { listPrinters, submitPrint, getPrinterMedia };
+module.exports = { listPrinters, submitPrint, getPrinterMedia, isWhitelisted };

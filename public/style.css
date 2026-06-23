@@ -299,6 +299,8 @@ select {
   padding-right: 28px;
 }
 
+select option:disabled { color: var(--nord3); }
+
 .hint { font-size: 11px; color: var(--nord3); }
 
 #printerMedia { font-size: 14px; color: var(--nord4); }

@@ -149,11 +149,12 @@ async function loadPrinters() {
         select.innerHTML = '<option value="">— Drucker wählen —</option>';
         data.printers.forEach(p => {
           const opt = document.createElement('option');
-          opt.value = p;
-          opt.textContent = p.replace(/_/g, ' ');
+          opt.value = p.name;
+          opt.textContent = p.name.replace(/_/g, ' ') + (p.allowed ? '' : ' (gesperrt)');
+          opt.disabled = !p.allowed;
           select.appendChild(opt);
         });
-        if (prev && data.printers.includes(prev)) select.value = prev;
+        if (prev && data.printers.some(p => p.name === prev && p.allowed)) select.value = prev;
       }
     } else {
       serverOk = false;
