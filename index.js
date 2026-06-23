@@ -62,7 +62,8 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
       const media = await getPrinterMedia(printer);
       const widthMm = media.widthMm || 55;
       const heightMm = media.heightMm || 30;
-      stdinData = await generateLabelPdf(text.trim(), codeType, widthMm, heightMm);
+      const rotate = (widthMm > heightMm) !== (orientation === 'landscape');
+      stdinData = await generateLabelPdf(text.trim(), codeType, widthMm, heightMm, rotate);
       printOrientation = 'portrait';
       printScale = 'none';
     } else if (!filePath) {

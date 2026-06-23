@@ -24,11 +24,16 @@ function fitFontSize(doc, text, maxWidth, maxHeight, startSize = 10, minSize = 5
   return size;
 }
 
-async function generateLabelPdf(text, symbology, widthMm = 55, heightMm = 30) {
+async function generateLabelPdf(text, symbology, widthMm = 55, heightMm = 30, rotate = false) {
   const pageW = widthMm * MM;
   const pageH = heightMm * MM;
-  const codeH = pageH * 0.6 - MARGIN;
-  const textH = pageH * 0.4 - MARGIN;
+  // Layout always assumes a canvas matching the media's natural shape; when
+  // `rotate` is set, content is drawn into a swapped-dimension canvas and
+  // mapped onto the (unrotated) physical page via a 90° transform below.
+  const layoutW = rotate ? pageH : pageW;
+  const layoutH = rotate ? pageW : pageH;
+  const codeH = layoutH * 0.6 - MARGIN;
+  const textH = layoutH * 0.4 - MARGIN;
 
   const codeText = symbology === 'code128' ? transliterate(text) : text;
 
@@ -45,16 +50,24 @@ async function generateLabelPdf(text, symbology, widthMm = 55, heightMm = 30) {
   doc.on('data', c => chunks.push(c));
   const done = new Promise(resolve => doc.on('end', () => resolve(Buffer.concat(chunks))));
 
+  if (rotate) {
+    doc.save();
+    doc.translate(pageW, 0);
+    doc.rotate(90);
+  }
+
   doc.image(png, MARGIN, MARGIN, {
-    fit: [pageW - 2 * MARGIN, codeH],
+    fit: [layoutW - 2 * MARGIN, codeH],
     align: 'center',
     valign: 'center'
   });
 
-  const textBoxW = pageW - 2 * MARGIN;
+  const textBoxW = layoutW - 2 * MARGIN;
   const textY = MARGIN + codeH + 2;
   const fontSize = fitFontSize(doc, text, textBoxW, textH);
-  doc.fontSize(fontSize).text(text, MARGIN, textY, { width: textBoxW, align: 'center' });
+  doc.fontSize(fontSize).text(text, MARGIN, textY, { width: textBoxW, height: textH, align: 'center' });
+
+  if (rotate) doc.restore();
 
   doc.end();
   return done;
