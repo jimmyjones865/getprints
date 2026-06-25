@@ -29,7 +29,7 @@ function isWhitelisted(printer) {
 
 async function listPrinters() {
   try {
-    const { stdout } = await execFileAsync('lpstat', ['-a', '-h', cupsAddr], { timeout: 5000 });
+    const { stdout } = await execFileAsync('lpstat', ['-h', cupsAddr, '-a'], { timeout: 5000 });
     const printers = stdout.trim().split('\n')
       .filter(Boolean)
       .map(line => line.split(/\s+/)[0]);
@@ -43,7 +43,7 @@ const PT_TO_MM = 25.4 / 72;
 
 async function getPrinterMedia(printer) {
   try {
-    const { stdout } = await execFileAsync('lpoptions', ['-p', printer, '-l'], { timeout: 5000 });
+    const { stdout } = await execFileAsync('lpoptions', ['-h', cupsAddr, '-p', printer, '-l'], { timeout: 5000 });
     const line = stdout.split('\n').find(l => l.startsWith('PageSize'));
     if (!line) return { ok: false };
 
@@ -71,7 +71,7 @@ async function getPrinterMedia(printer) {
 }
 
 async function submitPrint({ filePath, stdinData, printer, copies, pages, orientation, scale }) {
-  const args = ['-d', printer, '-h', cupsAddr, '-n', String(copies)];
+  const args = ['-h', cupsAddr, '-d', printer, '-n', String(copies)];
   if (pages) args.push('-P', pages);
   args.push('-o', `orientation-requested=${orientation === 'landscape' ? '4' : '3'}`);
   args.push('-o', `print-scaling=${scale === 'fit' ? 'fit' : 'none'}`);

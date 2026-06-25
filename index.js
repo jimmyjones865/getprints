@@ -26,6 +26,23 @@ function cleanup(filePath) {
   if (filePath) fs.unlink(filePath, () => {});
 }
 
+function sweepOrphans() {
+  fs.readdir('/tmp', (err, files) => {
+    if (err) return;
+    const cutoff = Date.now() - 60 * 60 * 1000;
+    files.filter(f => f.startsWith('getprints-')).forEach(f => {
+      const p = path.join('/tmp', f);
+      fs.stat(p, (err, stat) => {
+        if (!err && stat.mtimeMs < cutoff) fs.unlink(p, () => {});
+      });
+    });
+  });
+}
+setInterval(sweepOrphans, 60 * 60 * 1000);
+sweepOrphans();
+
+const TEXT_MAX_CHARS = 4000;
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/printers', async (req, res) => {
@@ -52,6 +69,11 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
 
   const filePath = req.file && req.file.path;
   if (!filePath && !(text && text.trim())) return res.status(400).json({ error: 'Keine Datei oder Text' });
+
+  if (text && text.length > TEXT_MAX_CHARS) {
+    cleanup(filePath);
+    return res.status(400).json({ error: `Text zu lang (max. ${TEXT_MAX_CHARS} Zeichen)` });
+  }
 
   if (!printer) {
     cleanup(filePath);

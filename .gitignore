@@ -1,7 +1,7 @@
 node_modules/
 .env
-CLAUDE.md
 printer-whitelist.txt
+CLAUDE.md
 PLAN.md
 DECISIONS.md
 ADVISOR_NOTES.md
